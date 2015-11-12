@@ -7,3 +7,9 @@
 # bands with lowest order possible. 
 #
 ###############################################################################
+import math
+
+def butterworth_build(cutoff_freq, stopband_freq):
+    cutoff_ang = math.pi*cutoff_freq
+    stopban_ang = math.pi*stopband_freq
+
