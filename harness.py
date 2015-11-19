@@ -5,4 +5,30 @@
 #
 ###############################################################################
 
+#Setup PyQt for using with the matplotlib
+from PyQt4 import QtGui, QtCore
+import matplotlib
+matplotlib.use("Qt4Agg") #force matplotlib to use Qt4
+
 import scipy.signal as sig
+import scipy.io.wavfile as wav
+
+#import the dirty audio
+audio_input = wav.read("rawaudio/noisy.wav")
+
+#apply some filters to the audio
+
+
+
+
+
+
+###############################################################################
+#
+# Define a set of functions to design each of the required filters. 
+#
+###############################################################################
+
+#Butterworth 
+def butter_filt(stopband_freq, passband_freq):
+    
