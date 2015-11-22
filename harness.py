@@ -12,6 +12,7 @@ matplotlib.use("Qt4Agg") #force matplotlib to use Qt4
 
 import scipy.signal as sig
 import scipy.io.wavfile as wav
+import math
 
 #import the dirty audio
 audio_input = wav.read("rawaudio/noisy.wav")
@@ -31,4 +32,6 @@ audio_input = wav.read("rawaudio/noisy.wav")
 
 #Butterworth 
 def butter_filt(stopband_freq, passband_freq):
-    
+    stopband_rads = stopband_freq/(math.pi*2)
+    passband_rads = passband_freq/(math.pi*2)
+    N, Wn = sig.buttord(
