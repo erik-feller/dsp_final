@@ -9,10 +9,12 @@
 from PyQt4 import QtGui, QtCore
 import matplotlib
 matplotlib.use("Qt4Agg") #force matplotlib to use Qt4
+import matplotlib.pyplot as plt
 
 import scipy.signal as sig
 import scipy.io.wavfile as wav
 import math
+import numpy as np
 
 #Set variables for the stopband frequencies in case they might change
 leftstop = 1600
@@ -20,6 +22,10 @@ rightstop = 1700
 leftpass = 1400
 rightpass = 1900
 nyquist = 5512.5
+
+#Define values for the tolerances allowed
+pass_tol = 0.5
+stop_val = 100 #given in negative dB
 
 #Now change the values into ratios so that SciPy functions can accept them
 stopband_ratio = [(leftstop/nyquist),(rightstop/nyquist)]
@@ -32,6 +38,19 @@ audio_input = wav.read("rawaudio/noisy.wav")
 ##############################################################################
 # Butterworth Filter
 ##############################################################################
+test = "butterworth"
+N, Wn = sig.buttord(passband_ratio,stopband_ratio,3, stop_val)
+n, d = sig.butter(N, Wn, btype='bandstop',analog=False, output='ba') 
+w, h = sig.freqs(n,d,np.logspace(1, 2, 500))
+plt.semilogx(w, 20*np.log10(abs(h)))
+plt.show()
+print(Wn)
+print(N)
+
+
+#Define a function to create an output file with order and other information.
+def output(order):
+    return 0
 
 
 
