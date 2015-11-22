@@ -28,8 +28,10 @@ pass_tol = 0.5
 stop_val = 100 #given in negative dB
 
 #Now change the values into ratios so that SciPy functions can accept them
-stopband_ratio = [(leftstop/nyquist),(rightstop/nyquist)]
-passband_ratio = [(leftpass/nyquist),(rightpass/nyquist)]
+stopband_norm = [(leftstop/nyquist),(rightstop/nyquist)]
+passband_norm = [(leftpass/nyquist),(rightpass/nyquist)]
+print(passband_norm)
+print(stopband_norm)
 
 #import the dirty audio
 audio_input = wav.read("rawaudio/noisy.wav")
@@ -39,12 +41,11 @@ audio_input = wav.read("rawaudio/noisy.wav")
 # Butterworth Filter
 ##############################################################################
 test = "butterworth"
-N, Wn = sig.buttord(passband_ratio,stopband_ratio,3, stop_val)
+N, Wn = sig.buttord(passband_norm, stopband_norm, 3, stop_val, analog=False)
 n, d = sig.butter(N, Wn, btype='bandstop',analog=False, output='ba') 
-w, h = sig.freqs(n,d,np.logspace(1, 2, 500))
+w, h = sig.freqz(n, d, worN=5512)
 plt.semilogx(w, 20*np.log10(abs(h)))
 plt.show()
-print(Wn)
 print(N)
 
 
