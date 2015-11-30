@@ -41,12 +41,11 @@ audio_input = wav.read("rawaudio/noisy.wav")
 # Butterworth Filter
 ##############################################################################
 test = "butterworth"
-N, Wn = sig.buttord(passband_norm, stopband_norm, 3, stop_val, analog=False)
+N, Wn = sig.buttord(passband_norm,stopband_norm, 3, stop_val, analog=False)
 n, d = sig.butter(N, Wn, btype='bandstop',analog=False, output='ba') 
-w, h = sig.freqz(n, d, worN=5512)
-plt.semilogx(w, 20*np.log10(abs(h)))
+w, h = sig.freqz(n, d)
+plt.plot(w/max(w)*nyquist, 20*np.log10(abs(h)))
 plt.show()
-print(N)
 
 
 #Define a function to create an output file with order and other information.
