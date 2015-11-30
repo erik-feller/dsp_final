@@ -5,6 +5,15 @@
 #
 ###############################################################################
 
+#Check OS version and set newline character accordingly
+from sys import platform
+if platform == 'linux' or platform == 'linux2':
+    newline = '\n'
+if platform == 'darwin':
+    newline = '\n'
+elif platform == 'win32':
+    newline = '\r\n'
+
 #Setup PyQt for using with the matplotlib
 from PyQt4 import QtGui, QtCore
 import matplotlib
@@ -15,6 +24,9 @@ import scipy.signal as sig
 import scipy.io.wavfile as wav
 import math
 import numpy as np
+
+#define a visual display switch
+visual = True
 
 #Set variables for the stopband frequencies in case they might change
 leftstop = 1600
@@ -36,6 +48,35 @@ print(stopband_norm)
 #import the dirty audio
 audio_input = wav.read("rawaudio/noisy.wav")
 
+#Output formatting junk
+divide_line = "############################################################################" + newline
+
+#Define a function to create output graphs as well as other information.
+def output(order, n, d, z, p):
+    out_file = open('outputs/output.txt', 'a') #open file for output information
+    out_file.write(divide_line + test + newline)
+    out_file.write("The order of the filter is: " + str(2*N) + newline)
+
+    #now work on the graphing
+    #start with magnitude and phase graphing
+    fig, ax = plt.subplots()
+    axes = [ax, ax.twinx()]
+    w, h = sig.freqz(n, d)
+    axes[0].plot(w/max(w)*nyquist, 20*np.log10(abs(h)),color='Blue')
+    axes[0].set_ylim(-160, 5)
+    axes[0].set_ylabel('Magnitude in dB')
+    axes[1].plot(w/max(w)*nyquist,np.unwrap(np.arctan2(np.imag(h),np.real(h))), color='Green')
+    axes[1].set_ylabel('Phase')
+    plt.xlim(1400, 2000)
+    plt.xlabel('Frequency in Hz')
+    plt.title('Frequency Response')
+    plt.savefig('outputs/' + test + '_magnitude.png')
+    #now impulse response
+    
+    if(visual):
+        plt.show()
+    return 0
+
 #apply some filters to the audio
 ##############################################################################
 # Butterworth Filter
@@ -43,14 +84,5 @@ audio_input = wav.read("rawaudio/noisy.wav")
 test = "butterworth"
 N, Wn = sig.buttord(passband_norm,stopband_norm, 3, stop_val, analog=False)
 n, d = sig.butter(N, Wn, btype='bandstop',analog=False, output='ba') 
-w, h = sig.freqz(n, d)
-plt.plot(w/max(w)*nyquist, 20*np.log10(abs(h)))
-plt.show()
-
-
-#Define a function to create an output file with order and other information.
-def output(order):
-    return 0
-
-
-
+z, p, k = sig.butter(N, Wn, btype='bandstop',analog=False, output='zpk') 
+output(N, n, d, z, p)
