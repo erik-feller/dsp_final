@@ -28,6 +28,9 @@ import numpy as np
 #define a visual display switch
 visual = True
 
+#Define a variable to tweak computations
+computations = 512
+
 #Set variables for the stopband frequencies in case they might change
 leftstop = 1600
 rightstop = 1700
@@ -60,10 +63,11 @@ def output(order, n, d, z, p, k):
     plt.figure(1)
     ax = plt.axes()
     axes = [ax, ax.twinx()]
-    w, h = sig.freqz(n, d)
+    w, h = sig.freqz(n, d, computations)
     axes[0].plot(w/max(w)*nyquist, 20*np.log10(abs(h)),color='Blue') #plotphase
     axes[0].set_ylim(-160, 5)
     axes[0].set_ylabel('Magnitude in dB')
+    axes[0].grid(True,linestyle='--')
     axes[1].plot(w/max(w)*nyquist,np.unwrap(np.arctan2(np.imag(h),np.real(h))), color='Green') #plot phase
     axes[1].set_ylabel('Phase')
     plt.xlim(1300, 2000)
@@ -76,20 +80,49 @@ def output(order, n, d, z, p, k):
     plt.plot(np.real(p),np.imag(p),'xb') #plot the poles
     t = np.linspace(0,np.pi*2,100) #generate a time interval for unit circle 
     plt.plot(np.cos(t),np.sin(t),'b--')
-    plt.xlim(-1.1,1.1)
-    plt.ylim(-1.1,1.1)
+    #The long and arduous process of defining the graph axis bounds
+    mins_y = [min(np.imag(z)),min(np.imag(p))]
+    maxs_y = [max(np.imag(z)),max(np.imag(p))]
+    mins_x = [min(np.real(z)),min(np.real(p))]
+    maxs_x = [max(np.real(z)),max(np.real(p))]
+    #Set the x axis
+    if max(maxs_x) > 1:
+        if min(mins_x < -1):
+            plt.xlim(min(mins_x)+0.1,max(maxs_x)+0.1)
+        else:
+            plt.xlim(-1.1, max(maxs_x)+0.1)
+    else:
+        if min(mins_x < -1):
+            plt.xlim(min(mins_x)+0.1,1.1)
+        else:
+            plt.xlim(-1.1, 1.1)
+    #Set the y axis
+    if max(maxs_y) > 1:
+        if min(mins_y < -1):
+            plt.xlim(min(mins_y)+0.1,max(maxs_y)+0.1)
+        else:
+            plt.xlim(-1.1, max(maxs_y)+0.1)
+    else:
+        if min(mins_x < -1):
+            plt.xlim(min(mins_y)+0.1,1.1)
+        else:
+            plt.xlim(-1.1, 1.1)
+
+    plt.gca().grid(True, linestyle='--')
     plt.savefig('outputs/' + test + '_pz.png')
     #Plot group delay
     plt.figure(3)
     grpdelay = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) #calculating the group delay using linear derivative approx
-    #print(len(-np.diff(np.unwrap(np.angle(h)))))
-    #print(len(np.diff(w)))
     plt.plot(w[0:len(grpdelay)]/max(w)*nyquist,grpdelay)
+    plt.gca().grid(True, linestyle='--')
+    plt.savefig('outputs/' + test + '_grpdelay.png')
     #Plot impulse response
     plt.figure(4)
     t,(im,) = sig.dimpulse([n,d,1])
     plt.stem(t,im)
     plt.xlim(-1, 100)
+    plt.gca().grid(True, linestyle='--')
+    plt.savefig('outputs/' + test + '_impulse.png')
     if(visual):
         plt.show()
     return 0
@@ -104,4 +137,4 @@ test = "butterworth"
 N, Wn = sig.buttord(passband_norm,stopband_norm, 3, stop_val, analog=False)
 n, d = sig.butter(N, Wn, btype='bandstop',analog=False, output='ba') 
 z, p, k = sig.butter(N, Wn, btype='bandstop',analog=False, output='zpk') 
-output(N+1, n, d, z, p, k)
+output(N, n, d, z, p, k)
